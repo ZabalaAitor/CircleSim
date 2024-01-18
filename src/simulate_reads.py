@@ -1,6 +1,4 @@
 import os
-import argparse
-from CircSim import parse_arguments
 import numpy as np
 import pysam as ps
 from Bio import SeqIO
@@ -8,6 +6,7 @@ from Bio.Seq import Seq
 import random
 import string
 import math
+from utils import parse_reads_arguments  # Replace with the actual import for your argument parsing function
 
 def read_bed_file(input_bed):
     circle_bed = []
@@ -23,55 +22,58 @@ def read_bed_file(input_bed):
     return circle_bed
 
 class SimulateReads:
-    def __init__(self, coverage, reads_length, insert_length, circle_bed, genome_fasta, output_fastq):
-        self.coverage = coverage
-        self.reads_length = reads_length
-        self.insert_length = insert_length
+    def __init__(self, args, circle_bed):
+        self.genome_fasta = args.genome_fasta
+        self.sequence = args.sequence
+        self.coverage = args.coverage
+        self.reads_length = args.reads_length
+        self.insert_length = args.insert_length
+        self.input_bed = args.input_bed
+        self.output_fastq = args.output_fastq
         self.circle_bed = circle_bed
-        self.genome_fasta = genome_fasta
-        self.output_fastq = output_fastq
 
-    def simulate_reads(coverage, reads_length, insert_length, circle_bed, genome_fasta):
-    fasta = ps.FastaFile(genome_fasta)
+    def simulate_reads(self):
+        fasta = ps.FastaFile(self.genome_fasta)
         all_reads = []
         
-        if sequence == 'short':
-            for circle_info in circle_bed:
+        if self.sequence == 'short':
+            for circle_info in self.circle_bed:
                 chromosome, circle_start, circle_end = circle_info
                 circle_length = circle_end - circle_start
-                reads = math.ceil((circle_length * coverage) / (reads_length * 2)) ####### Round up!!!!!!!
+                reads = math.ceil((circle_length * self.coverage) / (self.reads_length * 2)) ####### Round up!!!!!!!
                 for _ in range(round(reads)): 
-                    insert_start = np.random.randint(circle_start, circle_end) # CHANGE!!!
-                    insert_end = insert_start + (insert_length % circle_length)
-                    #n_bsj = math.ceil(insert_length / circle_length) #### insert_length // circle_length
+                    insert_start = np.random.randint(circle_start, circle_end)  # CHANGE!!!
+                    insert_end = insert_start + (self.insert_length % circle_length)
+                    n_bsj = 0
+                    n_bsj = math.ceil(self.insert_length / circle_length)  #### insert_length // circle_length
                     left_read_start = insert_start
-                    left_read_end = left_read_start + reads_length
+                    left_read_end = left_read_start + self.reads_length
                     right_read_end = insert_end
-                    right_read_start = insert_end - reads_length
+                    right_read_start = insert_end - self.reads_length
                     code = random_string = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(10))
 
-                    # CORRECCIÓN: No teniamos en cuenta si el R2 pasaba del círculo, solo si pasaba pero era mayor que la longitud del circulo en sí
+                    # CORRECCIÓN: No teníamos en cuenta si el R2 pasaba del círculo, solo si pasaba pero era mayor que la longitud del círculo en sí
                     if right_read_end >= circle_end:
                         right_read_end -= circle_length
-                        right_read_start -= circle_length             
+                        right_read_start -= circle_length
                     if (left_read_end <= circle_end) & (right_read_start >= circle_start):
                         left_read = fasta.fetch(chromosome, left_read_start, left_read_end)
                         right_read = fasta.fetch(chromosome, right_read_start, right_read_end)
-                        if right_read_start < left_read_start: # DISCORDANT
-                            n_bsj += 1
+                        if right_read_start < left_read_start:  # DISCORDANT
+                            #n_bsj += 1
                             label = 'DR'
-                        else: # CONCORDANT
+                        else:  # CONCORDANT
                             name = f'{code}|{chromosome}:{circle_start}-{circle_end}|{left_read_start}-{right_read_end}|CR '
                             label = 'CR'
-                    elif (left_read_end > circle_end) & (right_read_start < circle_start): # LEFT RIGHT SPLIT READ
+                    elif (left_read_end > circle_end) & (right_read_start < circle_start):  # LEFT RIGHT SPLIT READ
                         left_read = fasta.fetch(chromosome, left_read_start, circle_end) + fasta.fetch(chromosome, circle_start, circle_start + left_read_end - circle_end)
                         right_read = fasta.fetch(chromosome, circle_end - (circle_start - right_read_start), circle_end) + fasta.fetch(chromosome, circle_start, right_read_end)
                         label = 'LRSR'
-                    elif left_read_end > circle_end: # LEFT SPLIT READ
+                    elif left_read_end > circle_end:  # LEFT SPLIT READ
                         left_read = fasta.fetch(chromosome, left_read_start, circle_end) + fasta.fetch(chromosome, circle_start, circle_start + left_read_end - circle_end)
                         right_read = fasta.fetch(chromosome, right_read_start, right_read_end)
                         label = 'LSR'
-                    elif right_read_start < circle_start: # RIGHT SPLIT READ
+                    elif right_read_start < circle_start:  # RIGHT SPLIT READ
                         left_read = fasta.fetch(chromosome, left_read_start, left_read_end)
                         right_read = fasta.fetch(chromosome, circle_end - (circle_start - right_read_start), circle_end) + fasta.fetch(chromosome, circle_start, right_read_end)
                         label = 'RSR'
@@ -86,45 +88,46 @@ class SimulateReads:
                     right_name = name + '2:N:0:CGCTGTG'
                     # Create the reverse-complement read
                     right_read = str(Seq(right_read).reverse_complement())
-                    left_read = left_read.upper() #########
-                    right_read = right_read.upper() ########
+                    left_read = left_read.upper()  #########
+                    right_read = right_read.upper()  ########
                     all_reads.append((left_name, right_name, left_read, right_read))
-                
-            # Write reads to a fastq file
-            write_fastq_files(output_fastq, all_reads, phred_score=40, sequence='short')
 
-        if sequence == 'long':
-            for circle_info in circle_bed:
+            # Write reads to a fastq file
+            self.write_fastq_files(self.output_fastq, all_reads, phred_score=40, sequence='short')
+
+        if self.sequence == 'long':
+            for circle_info in self.circle_bed:
                 chromosome, circle_start, circle_end = circle_info
                 circle_length = circle_end - circle_start
-                reads = math.ceil((circle_length * coverage) / (reads_length * 2)) ##### Round up!!!
+                reads = math.ceil((circle_length * self.coverage) / (self.reads_length * 2))  ##### Round up!!!
                 for _ in range(round(reads)): 
-                    read_start = np.random.randint(circle_start, circle_end) # CHANGE!!!
-                    read_end = read_start + reads_length
+                    read_start = np.random.randint(circle_start, circle_end)  # CHANGE!!!
+                    read_end = read_start + self.reads_length
                     while read_end > circle_end:
-                        read_end -= reads_length
-                    n_bsj = math.ceil((reads_length / circle_length)) #### CHECK
+                        read_end -= self.reads_length
+                    n_bsj = 0
+                    n_bsj = math.ceil((self.reads_length / circle_length))  #### CHECK
                     complete_bsj = n_bsj - 2
-                    fasta = ps.FastaFile(genome_fasta)
+                    fasta = ps.FastaFile(self.genome_fasta)
                     start_sequence = fasta.fetch(chromosome, read_start, circle_end)
                     mid_sequence = fasta.fetch(chromosome, circle_start, circle_end)
                     end_sequence = fasta.fetch(chromosome, circle_start, read_end)
                     read = start_sequence + complete_bsj * mid_sequence + end_sequence 
                     code = random_string = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(10))
                     name = f'{code}|{chromosome}:{circle_start}-{circle_end}|{read_start}-{read_end}'
-                    read = read.upper() #########
+                    read = read.upper()  #########
                     all_reads.append((name, read))
-            
+
             # Write reads to a fastq file
-            write_fastq_files(output_fastq, all_reads, phred_score=40, sequence='long')
+            self.write_fastq_files(self.output_fastq, all_reads, phred_score=40, sequence='long')
 
     def generate_quality_line(phred_score, length):
         return chr(phred_score + 33) * length
 
-    def write_fastq_files(file_path, all_reads, phred_score=40, sequence='short'):
+    def write_fastq_files(self, file_path, all_reads, sequence, phred_score=40):
         if sequence == 'short':
-            r1_file_path = f"{file_path}_R1.fastq"
-            r2_file_path = f"{file_path}_R2.fastq"
+            r1_file_path = f"{file_path}R1.fastq"
+            r2_file_path = f"{file_path}R2.fastq"
 
             r1_records = []
             r2_records = []
@@ -138,7 +141,7 @@ class SimulateReads:
                 right_record = SeqIO.SeqRecord(Seq(right_read), id=f"{right_name} R2", description="")
                 right_record.letter_annotations['phred_quality'] = [phred_score] * len(right_read)
                 r2_records.append(right_record)
-            
+
             # Write R1 records to the R1 file
             with open(r1_file_path, 'w') as r1_file:
                 SeqIO.write(r1_records, r1_file, 'fastq')
@@ -146,7 +149,7 @@ class SimulateReads:
             # Write R2 records to the R2 file
             with open(r2_file_path, 'w') as r2_file:
                 SeqIO.write(r2_records, r2_file, 'fastq')
-                    
+
         elif sequence == 'long':
             records = []
             for name, read in all_reads:
@@ -158,8 +161,12 @@ class SimulateReads:
             with open(file_path, 'w') as file:
                 SeqIO.write(records, file, 'fastq')
 
+    def run(self):
+        circle_bed = read_bed_file(self.input_bed)
+        self.simulate_reads()
+
 if __name__ == "__main__":
-    args = parse_arguments()
-    circle_bed = read_bed_file(args.output_bed)
-    reads_instance = SimulateReads(args.coverage, args.reads_length, args.insert_length, circle_bed, args.genome_fasta, args.output_fastq)
+    args = parse_reads_arguments()  # Replace with the actual function for parsing arguments
+    circle_bed = read_bed_file(args.input_bed)
+    reads_instance = SimulateReads(circle_bed, args)
     reads_instance.simulate_reads()
