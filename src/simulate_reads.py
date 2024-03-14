@@ -6,7 +6,7 @@ from Bio.Seq import Seq
 import random
 import string
 import math
-from utils import parse_reads_arguments  # Replace with the actual import for your argument parsing function
+from utils import parse_reads_arguments 
 
 def read_bed_file(input_bed):
     circle_bed = []
@@ -166,7 +166,7 @@ class SimulateReads:
         self.simulate_reads()
 
 if __name__ == "__main__":
-    args = parse_reads_arguments()  # Replace with the actual function for parsing arguments
+    args = parse_reads_arguments()  
     circle_bed = read_bed_file(args.input_bed)
     reads_instance = SimulateReads(circle_bed, args)
     reads_instance.simulate_reads()
