@@ -60,7 +60,6 @@ class SimulateReads:
                         left_read = fasta.fetch(chromosome, left_read_start, left_read_end)
                         right_read = fasta.fetch(chromosome, right_read_start, right_read_end)
                         if right_read_start < left_read_start:  # DISCORDANT
-                            #n_bsj += 1
                             label = 'DR'
                         else:  # CONCORDANT
                             name = f'{code}|{chromosome}:{circle_start}-{circle_end}|{left_read_start}-{right_read_end}|CR '
