@@ -1,12 +1,12 @@
 import os
-from utils import parse_eccDNA_arguments
+from utils import parse_circles_arguments
 import numpy as np
 from pyfaidx import Fasta
 
-class SimulateEccDNA:
+class SimulateCircles:
 
     def __init__(self, args):
-        self.total_eccDNA = args.total_eccDNA
+        self.total = args.total
         self.length_min = args.length_min
         self.length_max = args.length_max
         self.genome_fasta = args.genome_fasta
@@ -31,13 +31,13 @@ class SimulateEccDNA:
 
         return chromosomes
 
-    def simulate_eccDNA(self, chromosomes):
+    def simulate_circles(self, chromosomes):
         circle_bed = []
-        n_eccDNA = 0
+        n_circles = 0
         
-        # Create eccDNA
-        while n_eccDNA < self.total_eccDNA:
-            n_eccDNA += 1
+        # Create circles
+        while n_circles < self.total:
+            n_circles += 1
 
             chromosome = np.random.choice(list(chromosomes.keys()), p=[chromosomes[contig]['weight'] for contig in chromosomes])
             circle_length = np.random.randint(self.length_min, self.length_max) # CHANGE!!!
@@ -48,7 +48,7 @@ class SimulateEccDNA:
             circle_bed.append(line)
 
         try:
-            # Write eccDNA to a bed file 
+            # Write circles to a bed file 
             with open(self.output_bed, 'w') as file:
                 for line in circle_bed:
                     file.write('\t'.join(map(str, line)) + '\n')
@@ -57,9 +57,9 @@ class SimulateEccDNA:
 
     def run(self):
         chromosomes = self.select_chromosomes()
-        self.simulate_eccDNA(chromosomes)
+        self.simulate_circles(chromosomes)
 
 if __name__ == "__main__":
-    args = parse_eccDNA_arguments()
-    eccdna_instance = SimulateEccDNA(args)
-    eccdna_instance.run()
+    args = parse_circles_arguments()
+    circles_instance = SimulateCircles(args)
+    circles_instance.run()
