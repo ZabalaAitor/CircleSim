@@ -27,7 +27,6 @@ Commands:
 '''
         )
         subparsers = self.parser.add_subparsers(dest='subcommand')
-
         self.circles = subparsers.add_parser(
             name='circles',
             description='Simulate circles',
