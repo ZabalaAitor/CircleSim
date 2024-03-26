@@ -6,6 +6,7 @@ from Bio.Seq import Seq
 import random
 import string
 import math
+from scipy.stats import beta
 from utils import parse_reads_arguments 
 
 def read_bed_file(input_bed):
@@ -35,23 +36,15 @@ class SimulateReads:
     def simulate_reads(self):
         fasta = ps.FastaFile(self.genome_fasta)
         all_reads = []
-        
+        alpha_value = 0.5
+        beta_value = 0.5
         if self.sequence == 'short':
             for circle_info in self.circle_bed:
                 chromosome, circle_start, circle_end = circle_info
                 circle_length = circle_end - circle_start
-                circle_midpoint = (circle_start + circle_end) / 2
-                inverted_circle_start = circle_midpoint - circle_length / 2
-                inverted_circle_end = circle_midpoint + circle_length / 2
-                a = (circle_start - inverted_circle_start) / (circle_length / 2)
-                b = (circle_end - inverted_circle_start) / (circle_length / 2)
-                mu = circle_midpoint
-                sigma = (circle_length / 2) / 3
-                truncated_dist = truncnorm(a, b, loc=mu, scale=sigma)
-                reads = math.ceil((circle_length * self.coverage) / (self.reads_length * 2)) ####### Round up!!!!!!!
+                reads = math.ceil((circle_length * self.coverage) / (self.reads_length * 2))
                 for _ in range(round(reads)): 
-                    insert_start = truncated_dist.rvs()
-                    insert_start = max(min(insert_start, circle_end), circle_start)
+                    insert_start = int(beta.rvs(alpha_value, beta_value, loc=circle_start, scale=circle_length, size=1))
                     insert_end = insert_start + (self.insert_length % circle_length)
                     n_bsj = 0
                     n_bsj = math.ceil(self.insert_length / circle_length)  #### insert_length // circle_length
@@ -60,7 +53,6 @@ class SimulateReads:
                     right_read_end = insert_end
                     right_read_start = insert_end - self.reads_length
                     code = random_string = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(10))
-
                     # CORRECCIÓN: No teníamos en cuenta si el R2 pasaba del círculo, solo si pasaba pero era mayor que la longitud del círculo en sí
                     if right_read_end >= circle_end:
                         right_read_end -= circle_length

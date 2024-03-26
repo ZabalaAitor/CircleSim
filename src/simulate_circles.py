@@ -2,12 +2,13 @@ import os
 from utils import parse_circles_arguments
 import numpy as np
 from pyfaidx import Fasta
+from scipy.stats import lognorm
 
 class SimulateCircles:
 
     def __init__(self, args):
-        self.circle = args.circle
-        self.total = args.total
+        self.type = args.type
+        self.number = args.number
         self.distribution = args.distribution
         self.length_min = args.length_min
         self.length_max = args.length_max
@@ -40,18 +41,19 @@ class SimulateCircles:
         n_circles = 0
         
         # Create circles
-        while n_circles < self.total:
+        while n_circles < self.number:
             n_circles += 1
             if self.distribution == 'uniform':  
                 chromosome = np.random.choice(list(chromosomes.keys()), p=[chromosomes[contig]['weight'] for contig in chromosomes])
-                circle_length = np.random.randint(self.length_min, self.length_max) # CHANGE!!!
+                circle_length = np.random.randint(self.length_min, self.length_max) 
                 circle_start = np.random.randint(0, (chromosomes[chromosome]['length'] - circle_length))
                 circle_end = circle_start + circle_length
                 line = [chromosome, circle_start, circle_end]
                 circle_bed.append(line)
             elif self.distribution == 'lognormal':
                 chromosome = np.random.choice(list(chromosomes.keys()), p=[chromosomes[contig]['weight'] for contig in chromosomes])
-                circle_length = np.random.lognormal(self.mean, self.sd)
+                circle_length = int(lognorm.rvs(0.5, loc=0, scale=self.mean, size=1))
+                print(circle_length)
                 circle_start = np.random.randint(0, (chromosomes[chromosome]['length'] - circle_length))
                 circle_end = circle_start + circle_length
                 line = [chromosome, circle_start, circle_end]

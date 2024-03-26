@@ -13,8 +13,8 @@ class CircleSim:
         self.cs_version = "1.0"
 
         self.parser = argparse.ArgumentParser(
-            description='CircSim',
-            usage=f'''CircSim <subprograms> [options]
+            description='CircleSim',
+            usage=f'''CircleSim <subprograms> [options]
 
 version = {self.cs_version}
 
@@ -30,24 +30,27 @@ Commands:
         self.circles = subparsers.add_parser(
             name='circles',
             description='Simulate circles',
-            prog='CircSim circles',
-            usage='''CircSim circles [options]'''
+            prog='CircleSim circles',
+            usage='''CircleSim circles [options]'''
         )
         self.circles.add_argument('-t', '--type', type=str, required=True, choices=['DNA', 'RNA'], help='Type of circle (DNA or RNA)')
         self.circles.add_argument('-n', '--number', type=int, default=100, help='Number of circles to simulate')
         self.circles.add_argument('-d', '--distribution', type=str, choices=['uniform', 'lognormal'], default='uniform', help='Distribution of circle length (uniform or lognormal)')
         self.circles.add_argument('-l', '--length_min', type=int, default=300, help='Minimum length of eccDNA')
         self.circles.add_argument('-L', '--length_max', type=int, default=2000, help='Maximum length of eccDNA')
+        self.circles.add_argument('-m', '--mean', type=int, default=1000, help='Mean length of eccDNA')
+        self.circles.add_argument('-sd', '--sd', type=int, default=100, help='Stand deviation length of eccDNA')
         self.circles.add_argument('-g', '--genome_fasta', type=str, help='Path to the genome FASTA file')
-        self.circles.add_argument('-o', '--output_bed', type=str, default=os.getcwd(), help='Path to the output BED file for eccDNA')
+        self.circles.add_argument('-o', '--output_bed', type=str, default=os.getcwd(), help='Path to the output BED file for circles')
 
         self.reads = subparsers.add_parser(
             name='reads',
             description='Simulate circle reads',
-            prog='CircSim reads',
-            usage='''CircSim reads [options]'''
+            prog='CircleSim reads',
+            usage='''CircleSim reads [options]'''
         )
         self.reads.add_argument('-t', '--type', type=str, required=True, choices=['DNA', 'RNA'], help='Type of circle (DNA or RNA)')
+        self.reads.add_argument('-s', '--sequence', type=str, default='short', help='Coverage for reads simulation')
         self.reads.add_argument('-c', '--coverage', type=float, default=30, help='Coverage for reads simulation')
         self.reads.add_argument('-r', '--reads_length', type=int, default=150, help='Length of simulated reads')
         self.reads.add_argument('-i', '--insert_length', type=int, default=500, help='Insert length for reads simulation')
@@ -64,10 +67,10 @@ Commands:
     def set_default_genome_fasta(args):
         default_genome_fasta = ''
         # Set default genome FASTA file based on the circle type
-        if args.circle == 'DNA':
-            default_genome_fasta = 'URL_dna_genome.fa'
-        elif args.circle == 'RNA':
-            default_genome_fasta = 'URL_rna_genome.fa'
+        if args.type == 'DNA':
+            default_genome_fasta = '/home/unidad/Descargas/Homo_sapiens.GRCh38.dna_sm.primary_assembly.fa.gz'
+        elif args.type == 'RNA':
+            default_genome_fasta = '/home/unidad/Descargas/Homo_sapiens.GRCh38.cdna.all.fa.gz'
     
         # Check if default genome FASTA file exists locally
         if os.path.exists(default_genome_fasta):
@@ -98,6 +101,6 @@ Commands:
             reads_instance.simulate_reads()
 
 if __name__ == "__main__":
-    circsim = CircSim()
-    circsim.main()
+    circlesim = CircleSim()
+    circlesim.main()
 
