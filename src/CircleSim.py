@@ -38,8 +38,6 @@ Commands:
         self.circles.add_argument('-d', '--distribution', type=str, choices=['uniform', 'lognormal'], default='uniform', help='Distribution of circle length (uniform or lognormal)')
         self.circles.add_argument('-l', '--length_min', type=int, default=300, help='Minimum length of eccDNA')
         self.circles.add_argument('-L', '--length_max', type=int, default=2000, help='Maximum length of eccDNA')
-        self.circles.add_argument('-m', '--mean', type=int, default=1000, help='Circle length mean')
-        self.circles.add_argument('-sd', '--sd', type=int, default=100, help='Circle length standard deviation')
         self.circles.add_argument('-g', '--genome_fasta', type=str, help='Path to the genome FASTA file')
         self.circles.add_argument('-o', '--output_bed', type=str, default=os.getcwd(), help='Path to the output BED file for eccDNA')
 
@@ -62,50 +60,42 @@ Commands:
 
     def args_reads(self):
         return self.parser.parse_args()
-        
+
+    def set_default_genome_fasta(args):
+        default_genome_fasta = ''
+        # Set default genome FASTA file based on the circle type
+        if args.circle == 'DNA':
+            default_genome_fasta = 'URL_dna_genome.fa'
+        elif args.circle == 'RNA':
+            default_genome_fasta = 'URL_rna_genome.fa'
+    
+        # Check if default genome FASTA file exists locally
+        if os.path.exists(default_genome_fasta):
+            args.genome_fasta = default_genome_fasta
+        else:
+            print("Default genome FASTA file not found locally. Downloading from GitHub...")
+            # Download default genome FASTA file
+            subprocess.run(['wget', default_genome_fasta])
+            args.genome_fasta = default_genome_fasta
+
     def main(self):
         args = self.parser.parse_args()
 
         if args.subcommand == 'circles':
             # Check if genome FASTA file is not provided
             if not args.genome_fasta:
-                # Set default genome FASTA file based on the circle type
-                if args.circle == 'DNA':
-                    args.genome_fasta = '' ##########################
-                elif args.circle == 'RNA':
-                    args.genome_fasta = '' ##########################
-                # Check if default genome FASTA file exists locally
-                if os.path.exists(default_genome_fasta):
-                    args.genome_fasta = default_genome_fasta
-                else:
-                    print("Default genome FASTA file not found locally. Downloading from GitHub...")
-                    # Download default genome FASTA file
-                    subprocess.run(['wget', default_genome_fasta])
-                    args.genome_fasta = default_genome_fasta
+                set_default_genome_fasta(args)
 
             circles_instance = SimulateCircles(self.args_circles())
             circles_instance.run()
         elif args.subcommand == 'reads':
             # Check if genome FASTA file is not provided
             if not args.genome_fasta:
-                # Set default genome FASTA file based on the circle type
-                if args.circle == 'DNA':
-                    args.genome_fasta = '' ##########################
-                elif args.circle == 'RNA':
-                    args.genome_fasta = '' ##########################
-                # Check if default genome FASTA file exists locally
-                if os.path.exists(default_genome_fasta):
-                    args.genome_fasta = default_genome_fasta
-                else:
-                    print("Default genome FASTA file not found locally. Downloading from GitHub...")
-                    # Download default genome FASTA file
-                    subprocess.run(['wget', default_genome_fasta])
-                    args.genome_fasta = default_genome_fasta
-
+                set_default_genome_fasta(args)
+   
             circle_bed = read_bed_file(args.input_bed)
             reads_instance = SimulateReads(args, circle_bed)
             reads_instance.simulate_reads()
-
 
 if __name__ == "__main__":
     circsim = CircSim()

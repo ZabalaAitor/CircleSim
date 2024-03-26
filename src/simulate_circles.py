@@ -6,9 +6,13 @@ from pyfaidx import Fasta
 class SimulateCircles:
 
     def __init__(self, args):
+        self.circle = args.circle
         self.total = args.total
+        self.distribution = args.distribution
         self.length_min = args.length_min
         self.length_max = args.length_max
+        self.mean = args.mean   
+        self.sd = args.sd
         self.genome_fasta = args.genome_fasta
         self.output_bed = args.output_bed
 
@@ -38,15 +42,20 @@ class SimulateCircles:
         # Create circles
         while n_circles < self.total:
             n_circles += 1
-
-            chromosome = np.random.choice(list(chromosomes.keys()), p=[chromosomes[contig]['weight'] for contig in chromosomes])
-            circle_length = np.random.randint(self.length_min, self.length_max) # CHANGE!!!
-            circle_start = np.random.randint(0, (chromosomes[chromosome]['length'] - circle_length))
-            circle_end = circle_start + circle_length
-
-            line = [chromosome, circle_start, circle_end]
-            circle_bed.append(line)
-
+            if self.distribution == 'uniform':  
+                chromosome = np.random.choice(list(chromosomes.keys()), p=[chromosomes[contig]['weight'] for contig in chromosomes])
+                circle_length = np.random.randint(self.length_min, self.length_max) # CHANGE!!!
+                circle_start = np.random.randint(0, (chromosomes[chromosome]['length'] - circle_length))
+                circle_end = circle_start + circle_length
+                line = [chromosome, circle_start, circle_end]
+                circle_bed.append(line)
+            elif self.distribution == 'lognormal':
+                chromosome = np.random.choice(list(chromosomes.keys()), p=[chromosomes[contig]['weight'] for contig in chromosomes])
+                circle_length = np.random.lognormal(self.mean, self.sd)
+                circle_start = np.random.randint(0, (chromosomes[chromosome]['length'] - circle_length))
+                circle_end = circle_start + circle_length
+                line = [chromosome, circle_start, circle_end]
+                circle_bed.append(line)
         try:
             # Write circles to a bed file 
             with open(self.output_bed, 'w') as file:

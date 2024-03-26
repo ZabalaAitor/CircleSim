@@ -40,9 +40,18 @@ class SimulateReads:
             for circle_info in self.circle_bed:
                 chromosome, circle_start, circle_end = circle_info
                 circle_length = circle_end - circle_start
+                circle_midpoint = (circle_start + circle_end) / 2
+                inverted_circle_start = circle_midpoint - circle_length / 2
+                inverted_circle_end = circle_midpoint + circle_length / 2
+                a = (circle_start - inverted_circle_start) / (circle_length / 2)
+                b = (circle_end - inverted_circle_start) / (circle_length / 2)
+                mu = circle_midpoint
+                sigma = (circle_length / 2) / 3
+                truncated_dist = truncnorm(a, b, loc=mu, scale=sigma)
                 reads = math.ceil((circle_length * self.coverage) / (self.reads_length * 2)) ####### Round up!!!!!!!
                 for _ in range(round(reads)): 
-                    insert_start = np.random.randint(circle_start, circle_end)  # CHANGE!!!
+                    insert_start = truncated_dist.rvs()
+                    insert_start = max(min(insert_start, circle_end), circle_start)
                     insert_end = insert_start + (self.insert_length % circle_length)
                     n_bsj = 0
                     n_bsj = math.ceil(self.insert_length / circle_length)  #### insert_length // circle_length
