@@ -30,6 +30,8 @@ class SimulateReads:
         self.coverage = args.coverage
         self.reads_length = args.reads_length
         self.insert_length = args.insert_length
+        self.alpha_value = args.alpha_value
+        self.beta_value = args.beta_value
         self.input_bed = args.input_bed
         self.output_fastq = args.output_fastq
         self.circle_bed = circle_bed
@@ -38,8 +40,8 @@ class SimulateReads:
         # Load reference genome
         fasta = ps.FastaFile(self.genome_fasta)
         all_reads = []
-        alpha_value = 0.5 # alpha value for beta distributiom
-        beta_value = 0.5 # beta value for beta distribution
+        alpha_value = self.alpha_value # alpha value for beta distributiom
+        beta_value = self.beta_value # beta value for beta distribution
         if self.sequence == 'short':
             for circle_info in self.circle_bed:
                 chromosome, circle_start, circle_end = circle_info
