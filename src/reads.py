@@ -24,6 +24,7 @@ def read_bed_file(input_bed):
 
 class SimulateReads:
     def __init__(self, args, circle_bed):
+        self.type = args.type
         self.genome_fasta = args.genome_fasta
         self.sequence = args.sequence
         self.coverage = args.coverage
@@ -34,25 +35,29 @@ class SimulateReads:
         self.circle_bed = circle_bed
 
     def simulate_reads(self):
+        # Load reference genome
         fasta = ps.FastaFile(self.genome_fasta)
         all_reads = []
-        alpha_value = 0.5
-        beta_value = 0.5
+        alpha_value = 0.5 # alpha value for beta distributiom
+        beta_value = 0.5 # beta value for beta distribution
         if self.sequence == 'short':
             for circle_info in self.circle_bed:
                 chromosome, circle_start, circle_end = circle_info
                 circle_length = circle_end - circle_start
+                # Calculate number of reads based on circle length, coverage and insert lenght
                 reads = math.ceil((circle_length * self.coverage) / (self.reads_length * 2))
-                for _ in range(round(reads)): 
-                    insert_start = int(beta.rvs(alpha_value, beta_value, loc=circle_start, scale=circle_length, size=1))
+                for _ in range(round(reads)): ###### Intentar vectorizar
+                    if self.type == 'linear':
+                        insert_start = np.random.randint(circle_start, circle_end - self.insert_length)
+                    else:
+                        # Beta distribution can force insert start be near the breakpoint
+                        insert_start = int(beta.rvs(alpha_value, beta_value, loc=circle_start, scale=circle_length, size=1))
                     insert_end = insert_start + (self.insert_length % circle_length)
-                    n_bsj = 0
-                    n_bsj = math.ceil(self.insert_length / circle_length)  #### insert_length // circle_length
                     left_read_start = insert_start
                     left_read_end = left_read_start + self.reads_length
                     right_read_end = insert_end
                     right_read_start = insert_end - self.reads_length
-                    code = random_string = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(10))
+                    code = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(10))
                     # CORRECCIÓN: No teníamos en cuenta si el R2 pasaba del círculo, solo si pasaba pero era mayor que la longitud del círculo en sí
                     if right_read_end >= circle_end:
                         right_read_end -= circle_length
@@ -99,9 +104,9 @@ class SimulateReads:
             for circle_info in self.circle_bed:
                 chromosome, circle_start, circle_end = circle_info
                 circle_length = circle_end - circle_start
-                reads = math.ceil((circle_length * self.coverage) / (self.reads_length * 2))  ##### Round up!!!
+                reads = math.ceil((circle_length * self.coverage) / (self.reads_length * 2))  
                 for _ in range(round(reads)): 
-                    read_start = np.random.randint(circle_start, circle_end)  # CHANGE!!!
+                    read_start = int(beta.rvs(alpha_value, beta_value, loc=circle_start, scale=circle_length, size=1))
                     read_end = read_start + self.reads_length
                     while read_end > circle_end:
                         read_end -= self.reads_length
@@ -113,7 +118,7 @@ class SimulateReads:
                     mid_sequence = fasta.fetch(chromosome, circle_start, circle_end)
                     end_sequence = fasta.fetch(chromosome, circle_start, read_end)
                     read = start_sequence + complete_bsj * mid_sequence + end_sequence 
-                    code = random_string = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(10))
+                    code = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(10))
                     name = f'{code}|{chromosome}:{circle_start}-{circle_end}|{read_start}-{read_end}'
                     read = read.upper()  #########
                     all_reads.append((name, read))
