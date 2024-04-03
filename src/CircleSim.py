@@ -1,3 +1,4 @@
+import subprocess
 import argparse
 import os
 import sys
@@ -94,19 +95,12 @@ Commands:
     def main(self):
         args = self.parser.parse_args()
 
-        if args.subcommand == 'circles':
+        if args.subcommand == 'coordinates':
             # Check if genome FASTA file is not provided
             if not args.genome_fasta:
                 set_default_genome_fasta(args)
 
-            circles_instance = SimulateCircles(self.args_circles())
-            circles_instance.run()
-        if args.subcommand == 'RNAcircles':
-            # Check if genome FASTA file is not provided
-            if not args.genome_fasta:
-                set_default_genome_fasta(args)
-
-            circles_instance = SimulateRNACircles(self.args_circles())
+            circles_instance = SimulateCoordinates(self.args_circles())
             circles_instance.run()
         elif args.subcommand == 'reads':
             # Check if genome FASTA file is not provided
