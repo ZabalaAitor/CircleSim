@@ -1,8 +1,7 @@
 import argparse
 import os
 
-def parse_coordinates_arguments():
-    parser = argparse.ArgumentParser(description='CircleSim circles Utility Functions')
+def parse_coordinates_arguments(parser):
     parser.add_argument('-t', '--type', type=str, required=True, choices=['DNA', 'RNA'], help='Type of circle (DNA or RNA)')
     parser.add_argument('-n', '--number', type=int, default=100, help='Number of circles to simulate')
     parser.add_argument('-d', '--distribution', type=str, choices=['uniform', 'lognormal'], default='uniform', help='Distribution of circle length (uniform or lognormal) [default = uniform]')
@@ -13,10 +12,8 @@ def parse_coordinates_arguments():
     parser.add_argument('-g', '--genome_fasta', type=str, help='Path to the genome FASTA file')
     parser.add_argument('-r', '--transcript_bed', type=str, help='Path to the trasncript BED file')
     parser.add_argument('-o', '--output_bed', type=str, default=os.getcwd(), help='Path to the output BED file for circles')
-    return parser.parse_args()
 
-def parse_reads_arguments():
-    parser = argparse.ArgumentParser(description='CircleSim Reads Utility Functions')
+def parse_reads_arguments(parser):
     parser.add_argument('-t', '--type', type=str, required=True, choices=['DNA', 'RNA', 'linear'], help='Type of circle (DNA or RNA)')
     parser.add_argument('-s', '--sequence', type=str, default='short', help='Coverage for reads simulation')
     parser.add_argument('-c', '--coverage', type=float, default=30, help='Coverage for reads simulation')
@@ -27,15 +24,18 @@ def parse_reads_arguments():
     parser.add_argument('-g', '--genome_fasta', type=str, help='Path to the genome FASTA file')
     parser.add_argument('-b', '--input_bed', type=str, required=True, help='Path to the input BED file for eccDNA')
     parser.add_argument('-o', '--output_fastq', type=str, default=os.getcwd(), help='Path to the output FASTQ file for reads')
-    return parser.parse_args()
 
-
-def parse_join_arguments():
-    parser = argparse.ArgumentParser(description="Join two BED files")
+def parse_join_arguments(parser):
     parser.add_argument("-c", "--circle_fastq", type=str, help="Path to the input fastq file for circle", required=True)
     parser.add_argument("-l", "--linear_fastq", type=str, help="Path to the second BED file", required=True)
     parser.add_argument("-o", "--output_fastq", type=str, default=os.getcwd(), help="Path to the output FASTQ file for reads")
-    return parser.parse_args()
 
+def set_default_genome_fasta(args):
+    default_genome_fasta = '/home/unidad/Descargas/Homo_sapiens.GRCh38.dna_sm.primary_assembly.fa.gz'
 
-    
+    if os.path.exists(default_genome_fasta):
+        args.genome_fasta = default_genome_fasta
+    else:
+        print("Default genome FASTA file not found locally. Downloading from GitHub...")
+        subprocess.run(['wget', default_genome_fasta])
+        args.genome_fasta = default_genome_fasta
