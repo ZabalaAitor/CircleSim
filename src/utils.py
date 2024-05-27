@@ -1,5 +1,6 @@
 import argparse
 import os
+import subprocess
 
 def parse_coordinates_arguments(parser):
     parser.add_argument('-t', '--type', type=str, required=True, choices=['DNA', 'RNA'], help='Type of circle (DNA or RNA)')
@@ -19,8 +20,8 @@ def parse_reads_arguments(parser):
     parser.add_argument('-c', '--coverage', type=float, default=30, help='Coverage for reads simulation')
     parser.add_argument('-r', '--reads_length', type=int, default=150, help='Length of simulated reads')
     parser.add_argument('-i', '--insert_length', type=int, default=500, help='Insert length for reads simulation')
-    parser.add_argument('-a', '--alpha', type=int, default=0.5, help='Alpha value for beta distribution [default = 0.5]')
-    parser.add_argument('-v', '--beta', type=int, default=0.5, help='Beta value for beta distribution [default = 0.5]')
+    parser.add_argument('-a', '--alpha', type=float, default=0.5, help='Alpha value for beta distribution [default = 0.5]')  # Set default value here
+    parser.add_argument('-v', '--beta', type=float, default=0.5, help='Beta value for beta distribution [default = 0.5]')
     parser.add_argument('-g', '--genome_fasta', type=str, help='Path to the genome FASTA file')
     parser.add_argument('-b', '--input_bed', type=str, required=True, help='Path to the input BED file for eccDNA')
     parser.add_argument('-o', '--output_fastq', type=str, default=os.getcwd(), help='Path to the output FASTQ file for reads')
@@ -31,7 +32,7 @@ def parse_join_arguments(parser):
     parser.add_argument("-o", "--output_fastq", type=str, default=os.getcwd(), help="Path to the output FASTQ file for reads")
 
 def set_default_genome_fasta(args):
-    default_genome_fasta = '/home/unidad/Descargas/Homo_sapiens.GRCh38.dna_sm.primary_assembly.fa.gz'
+    default_genome_fasta = '/data/CircleSim/database/genome.fasta'
 
     if os.path.exists(default_genome_fasta):
         args.genome_fasta = default_genome_fasta

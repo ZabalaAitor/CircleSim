@@ -2,6 +2,7 @@ import os
 from utils import parse_coordinates_arguments
 import numpy as np
 import pandas as pd
+import pysam as ps
 import random
 from pyfaidx import Fasta
 from scipy.stats import lognorm
@@ -26,7 +27,7 @@ class SimulateCoordinates:
         # Filter unusual chromosomes
         with Fasta(self.genome_fasta) as fasta:
             for name, record in fasta.items():
-                if all(keyword not in name.lower() for keyword in ['alt', 'random', 'un', 'm']): # Specify unusual chromosomes
+                if all(keyword not in name.lower() for keyword in ['alt', 'random', 'un', 'm', 'ki', 'gl']): # Specify unusual chromosomes
                     chromosomes[name] = {'length': len(record), 'weight': 0}              
         # Calculate the total genome length
         whole_genome_length = sum(chromosomes[contig]['length'] for contig in chromosomes)       
@@ -37,10 +38,10 @@ class SimulateCoordinates:
 
     def simulate_coordinates(self, chromosomes):
         circle_bed = []
-        n_circles = 0     
+        n_circles = 0
+        fasta = ps.FastaFile(self.genome_fasta)     
         # Create circles 
         while n_circles < self.number:
-            n_circles += 1
             # Select distribution
             if self.distribution == 'uniform':  
                 # Select a circle length between a max and min value by a uniformal distribution
@@ -70,6 +71,13 @@ class SimulateCoordinates:
                 circle_start = np.random.randint(int(transcript[2]), int(transcript[3]) - circle_length)
             circle_end = circle_start + circle_length
             line = [chromosome, circle_start, circle_end]
+            ## Check if there are N in sequence
+            circle_sequence = fasta.fetch(chromosome, circle_start, circle_end)
+
+            if circle_sequence.count('n') > 20 or circle_sequence.count('N') > 20:
+                continue
+
+            n_circles += 1
             circle_bed.append(line)
         return circle_bed  
 

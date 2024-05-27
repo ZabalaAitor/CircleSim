@@ -7,6 +7,7 @@ import random
 import string
 import math
 from scipy.stats import beta
+from pyfaidx import Fasta
 from utils import parse_reads_arguments 
 
 def read_bed_file(input_bed):
@@ -30,8 +31,8 @@ class SimulateReads:
         self.coverage = args.coverage
         self.reads_length = args.reads_length
         self.insert_length = args.insert_length
-        self.alpha_value = args.alpha_value
-        self.beta_value = args.beta_value
+        self.alpha_value = args.alpha
+        self.beta_value = args.beta
         self.input_bed = args.input_bed
         self.output_fastq = args.output_fastq
         self.circle_bed = circle_bed
