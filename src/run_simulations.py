@@ -11,33 +11,30 @@ GENOME_FASTA_PATH = '/data/CircleSim/database/genome.fasta'
 TRANSCRIPT_BED_PATH = '/data/CircleSim/database/Homo_sapiens.GRCh38.cdna.all.short.bed'
 
 # Define the base path for output files
-OUTPUT_BASE_PATH = '/data/CircleSim/data'
+OUTPUT_BASE_PATH = '/data/CircleSim/data_rna/'
 
 def main():
     coverages = [5, 7, 10, 15, 20, 30, 50, 70, 100]
 
-    for circle_type in ['DNA', 'RNA']:
-        # Step 1: Generate coordinates for circular and linear DNA/RNA once
-        generate_coordinates(circle_type, circular=True)
-        generate_coordinates(circle_type, circular=False)
-        
+    for circle_type in ['RNA']:
+        for molecule_type in ['circular', 'linear']:
+            generate_coordinates(circle_type, molecule_type)
+
+    for circle_type in ['RNA']:
         for coverage in coverages:
-            # Step 2: Generate reads for circular and linear DNA/RNA
-            generate_reads(circle_type, coverage, circular=True)
-            generate_reads(circle_type, coverage, circular=False)
-            
-            # Step 3: Join the R1 circular with the linear and the R2 circular with the linear
+            generate_reads(circle_type, coverage, 'circular')
+            generate_reads(circle_type, coverage, 'linear')
             join_reads(circle_type, coverage)
 
-def generate_coordinates(circle_type, circular):
-    min_length = 300 if circular else 501
-    file_suffix = "circular" if circular else "linear"
-    output_path = os.path.join(OUTPUT_BASE_PATH, f'{file_suffix}{circle_type}.bed')
-    print(f"Generating {file_suffix} coordinates for {circle_type}")
+def generate_coordinates(circle_type, molecule_type):
+    min_length = 300 if molecule_type == 'circular' else 501
+    output_path = os.path.join(OUTPUT_BASE_PATH, f'{molecule_type}{circle_type}.bed')
+    print(f"Generating {molecule_type} coordinates for {circle_type}")
     subprocess.run([
         'python', CIRCLESIM_PATH, 'coordinates',
         '-t', circle_type,
-        '-n', '1000',  # Example number, adjust as needed
+        '-T', molecule_type,
+        '-n', '1000', 
         '-d', 'lognormal',
         '-l', str(min_length),
         '-L', '10000',
@@ -48,15 +45,14 @@ def generate_coordinates(circle_type, circular):
         '-o', output_path
     ])
 
-def generate_reads(circle_type, coverage, circular):
-    file_suffix = "circular" if circular else "linear"
-    reads_type = "linear" if not circular else circle_type
-    coordinates_path = os.path.join(OUTPUT_BASE_PATH, f'{file_suffix}{circle_type}.bed')
-    output_base_path = os.path.join(OUTPUT_BASE_PATH, f'{file_suffix}{circle_type}_cov{coverage}_')
-    print(f"Generating {file_suffix} reads for {circle_type} with coverage {coverage}")
+def generate_reads(circle_type, coverage, molecule_type):
+    coordinates_path = os.path.join(OUTPUT_BASE_PATH, f'{molecule_type}{circle_type}.bed')
+    output_base_path = os.path.join(OUTPUT_BASE_PATH, f'{molecule_type}{circle_type}_cov{coverage}_')
+    print(f"Generating {molecule_type} reads for {circle_type} with coverage {coverage}")
     subprocess.run([
         'python', CIRCLESIM_PATH, 'reads',
-        '-t', reads_type,
+        '-t', circle_type,
+        '-T', molecule_type,
         '-c', str(coverage),
         '-r', '150',
         '-i', '500',

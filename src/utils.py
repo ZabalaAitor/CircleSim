@@ -4,23 +4,27 @@ import subprocess
 
 def parse_coordinates_arguments(parser):
     parser.add_argument('-t', '--type', type=str, required=True, choices=['DNA', 'RNA'], help='Type of circle (DNA or RNA)')
+    parser.add_argument('-T', '--molecule', type=str, choices=['linear', 'circular'], default='circular', help='Type of molecule (linear or circular)')
     parser.add_argument('-n', '--number', type=int, default=100, help='Number of circles to simulate')
     parser.add_argument('-d', '--distribution', type=str, choices=['uniform', 'lognormal'], default='uniform', help='Distribution of circle length (uniform or lognormal) [default = uniform]')
     parser.add_argument('-l', '--length_min', type=int, default=300, help='Minimum length of eccDNA [default = 300]')
     parser.add_argument('-L', '--length_max', type=int, default=2000, help='Maximum length of eccDNA [default = 2000]')
     parser.add_argument('-m', '--mean', type=int, default=1000, help='Mean length of eccDNA [default = 1000]')
     parser.add_argument('-sd', '--sd', type=int, default=1, help='Standard deviation length of eccDNA [default = 1]')
+    parser.add_argument('-s', '--split', type=str, default=None, help='Enable splitting of sequences with the specified sequence (e.g., AGGT)')
     parser.add_argument('-g', '--genome_fasta', type=str, help='Path to the genome FASTA file')
     parser.add_argument('-r', '--transcript_bed', type=str, help='Path to the trasncript BED file')
     parser.add_argument('-o', '--output_bed', type=str, default=os.getcwd(), help='Path to the output BED file for circles')
+    
 
 def parse_reads_arguments(parser):
     parser.add_argument('-t', '--type', type=str, required=True, choices=['DNA', 'RNA', 'linear'], help='Type of circle (DNA or RNA)')
+    parser.add_argument('-T', '--molecule', type=str, choices=['linear', 'circular'], default='circular', help='Type of molecule (linear or circular)')
     parser.add_argument('-s', '--sequence', type=str, default='short', help='Coverage for reads simulation')
     parser.add_argument('-c', '--coverage', type=float, default=30, help='Coverage for reads simulation')
     parser.add_argument('-r', '--reads_length', type=int, default=150, help='Length of simulated reads')
     parser.add_argument('-i', '--insert_length', type=int, default=500, help='Insert length for reads simulation')
-    parser.add_argument('-a', '--alpha', type=float, default=0.5, help='Alpha value for beta distribution [default = 0.5]')  # Set default value here
+    parser.add_argument('-a', '--alpha', type=float, default=0.5, help='Alpha value for beta distribution [default = 0.5]')  
     parser.add_argument('-v', '--beta', type=float, default=0.5, help='Beta value for beta distribution [default = 0.5]')
     parser.add_argument('-g', '--genome_fasta', type=str, help='Path to the genome FASTA file')
     parser.add_argument('-b', '--input_bed', type=str, required=True, help='Path to the input BED file for eccDNA')

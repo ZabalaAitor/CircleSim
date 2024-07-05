@@ -26,6 +26,7 @@ def read_bed_file(input_bed):
 class SimulateReads:
     def __init__(self, args, circle_bed):
         self.type = args.type
+        self.molecule = args.molecule
         self.genome_fasta = args.genome_fasta
         self.sequence = args.sequence
         self.coverage = args.coverage
@@ -50,7 +51,7 @@ class SimulateReads:
                 # Calculate number of reads based on circle length, coverage and insert lenght
                 reads = math.ceil((circle_length * self.coverage) / (self.reads_length * 2))
                 for _ in range(round(reads)): ###### Intentar vectorizar
-                    if self.type == 'linear':
+                    if self.molecule == 'linear':
                         insert_start = np.random.randint(circle_start, circle_end - self.insert_length)
                     else:
                         # Beta distribution can force insert start be near the breakpoint
