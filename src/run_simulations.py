@@ -11,16 +11,16 @@ GENOME_FASTA_PATH = '/data/CircleSim/database/genome.fasta'
 TRANSCRIPT_BED_PATH = '/data/CircleSim/database/Homo_sapiens.GRCh38.cdna.all.short.bed'
 
 # Define the base path for output files
-OUTPUT_BASE_PATH = '/data/CircleSim/data_rna/'
+OUTPUT_BASE_PATH = '/data/CircleSim/data/circDNA/'
 
 def main():
     coverages = [5, 7, 10, 15, 20, 30, 50, 70, 100]
 
-    for circle_type in ['RNA']:
+    for circle_type in ['DNA']:
         for molecule_type in ['circular', 'linear']:
             generate_coordinates(circle_type, molecule_type)
 
-    for circle_type in ['RNA']:
+    for circle_type in ['DNA']:
         for coverage in coverages:
             generate_reads(circle_type, coverage, 'circular')
             generate_reads(circle_type, coverage, 'linear')
@@ -60,10 +60,13 @@ def generate_reads(circle_type, coverage, molecule_type):
         '-v', '0.5',
         '-g', GENOME_FASTA_PATH,
         '-b', coordinates_path,
-        '-o', output_base_path
+        '-o', output_base_path,
+        '--mutation',
+        '--save_unmutated'
     ])
 
 def join_reads(circle_type, coverage):
+    # Paths for mutated reads
     circular_r1_path = os.path.join(OUTPUT_BASE_PATH, f'circular{circle_type}_cov{coverage}_R1.fastq')
     linear_r1_path = os.path.join(OUTPUT_BASE_PATH, f'linear{circle_type}_cov{coverage}_R1.fastq')
     output_r1_path = os.path.join(OUTPUT_BASE_PATH, f'{circle_type}_cov{coverage}_R1.fastq')
@@ -85,6 +88,30 @@ def join_reads(circle_type, coverage):
         '-l', linear_r2_path,
         '-o', output_r2_path
     ])
+
+    # Paths for unmutated reads
+    circular_unmutated_r1_path = os.path.join(OUTPUT_BASE_PATH, f'circular{circle_type}_cov{coverage}_unmutated_R1.fastq')
+    linear_unmutated_r1_path = os.path.join(OUTPUT_BASE_PATH, f'linear{circle_type}_cov{coverage}_unmutated_R1.fastq')
+    output_unmutated_r1_path = os.path.join(OUTPUT_BASE_PATH, f'{circle_type}_cov{coverage}_unmutated_R1.fastq')
+
+    circular_unmutated_r2_path = os.path.join(OUTPUT_BASE_PATH, f'circular{circle_type}_cov{coverage}_unmutated_R2.fastq')
+    linear_unmutated_r2_path = os.path.join(OUTPUT_BASE_PATH, f'linear{circle_type}_cov{coverage}_unmutated_R2.fastq')
+    output_unmutated_r2_path = os.path.join(OUTPUT_BASE_PATH, f'{circle_type}_cov{coverage}_unmutated_R2.fastq')
+
+    if os.path.exists(circular_unmutated_r1_path) and os.path.exists(linear_unmutated_r1_path):
+        print(f"Joining unmutated reads for {circle_type} with coverage {coverage}")
+        subprocess.run([
+            'python', CIRCLESIM_PATH, 'join',
+            '-c', circular_unmutated_r1_path,
+            '-l', linear_unmutated_r1_path,
+            '-o', output_unmutated_r1_path
+        ])
+        subprocess.run([
+            'python', CIRCLESIM_PATH, 'join',
+            '-c', circular_unmutated_r2_path,
+            '-l', linear_unmutated_r2_path,
+            '-o', output_unmutated_r2_path
+        ])
 
 if __name__ == "__main__":
     main()

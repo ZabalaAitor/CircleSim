@@ -58,7 +58,7 @@ class SimulateCoordinates:
                 circle_length = np.random.randint(self.length_min, self.length_max)
             elif self.distribution == 'lognormal':
                 while True:
-                    circle_length = int(lognorm.rvs(0.5, loc=0, scale=self.mean, size=1))
+                    circle_length = int(lognorm.rvs(s=self.sd, loc=0, scale=self.mean, size=1))
                     if self.length_min <= circle_length <= self.length_max:
                         break
             chromosome = np.random.choice(list(chromosomes.keys()), p=[chromosomes[contig]['weight'] for contig in chromosomes])
