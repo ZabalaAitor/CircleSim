@@ -11,7 +11,7 @@ GENOME_FASTA_PATH = '/data/CircleSim/database/genome.fasta'
 TRANSCRIPT_BED_PATH = '/data/CircleSim/database/Homo_sapiens.GRCh38.cdna.all.short.bed'
 
 # Define the base path for output files
-OUTPUT_BASE_PATH = '/data/CircleSim/data/circDNA/'
+OUTPUT_BASE_PATH = '/data/CircleSim/data/circDNA/short'
 
 def main():
     coverages = [5, 7, 10, 15, 20, 30, 50, 70, 100]
@@ -27,7 +27,9 @@ def main():
             join_reads(circle_type, coverage)
 
 def generate_coordinates(circle_type, molecule_type):
-    min_length = 300 if molecule_type == 'circular' else 501
+    min_length = 175 if molecule_type == 'circular' else 501
+    max_length = 425 if molecule_type == 'circular' else 1000
+    mean_length = 300 if molecule_type == 'circular' else 750
     output_path = os.path.join(OUTPUT_BASE_PATH, f'{molecule_type}{circle_type}.bed')
     print(f"Generating {molecule_type} coordinates for {circle_type}")
     subprocess.run([
@@ -37,8 +39,8 @@ def generate_coordinates(circle_type, molecule_type):
         '-n', '1000', 
         '-d', 'lognormal',
         '-l', str(min_length),
-        '-L', '10000',
-        '-m', '1000',
+        '-L', str(max_length),
+        '-m', str(mean_length),
         '-sd', '1',
         '-g', GENOME_FASTA_PATH,
         '-r', TRANSCRIPT_BED_PATH,
