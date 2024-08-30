@@ -12,34 +12,12 @@
 
 To install CircleSim in a Conda environment, follow these steps:
 
-    ```bash
-    git clone https://github.com/yourusername/CircleSim.git
-    cd CircleSim
-    conda create -n circlesim python=3.8
-    conda activate circlesim
-    pip install -r requirements.txt
-    ```
-
-## Usage
-
-CircleSim provides three main commands:
-
-### 1. Simulate Coordinates
-
 ```bash
-python circlesim.py coordinates [options]
-```
-
-### 2. Simulate Reads
-
-```bash
-python circlesim.py reads [options]
-```
-
-### 2. Merge FASTQ Files
-
-```bash
-python circlesim.py join[options]
+git clone https://github.com/yourusername/CircleSim.git
+cd CircleSim
+conda create -n circlesim python=3.8
+conda activate circlesim
+pip install -r requirements.txt
 ```
 
 ## Examples
@@ -47,17 +25,19 @@ python circlesim.py join[options]
 **Simulate Coordinates:**
 
 ```bash
-python circlesim.py coordinates -t DNA -T circular -n 100 -d uniform -l 500 -L 1500 -o output_coordinates.bed
+python CircleSim.py coordinates -t DNA -T circular -n 100 -l 500 -L 1500 -o circular_coordinates.bed
+python CircleSim.py coordinates -t DNA -T linear -n 100 -l 500 -L 1500 -o linear_coordinates.bed
 ```
 
 **Simulate reads:**
 
 ```bash
-python circlesim.py reads -l 150 -e 0.01 -m 0.001 -b output_coordinates.bed -o simulated_reads.fastq
+python CircleSim.py reads -b circular_coordinates.bed -o circular_reads.fastq
+python CircleSim.py reads -b linear_coordinates.bed -o linear_reads.fastq
 ```
 
 **Merge FASTQ Files:**
 
 ```bash
-python circlesim.py merge_fastq -i read1.fastq,read2.fastq -o merged_reads.fastq
+python CircleSim.py  -c circular_reads.fastq -l linear_reads.fastq -o reads.fastq
 ```
