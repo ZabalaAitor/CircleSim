@@ -3,7 +3,7 @@ import os
 from reads import SimulateReads, read_bed_file
 from coordinates import SimulateCoordinates
 from join import Join
-from utils import parse_coordinates_arguments, parse_reads_arguments, parse_join_arguments, set_default_genome_fasta
+from utils import parse_coordinates_arguments, parse_reads_arguments, parse_join_arguments, set_default_genome_fasta, set_default_transcript_bed
 
 
 class CircleSim:
@@ -57,6 +57,7 @@ Commands:
 
         if args.subcommand == 'coordinates':
             set_default_genome_fasta(args)
+            set_default_transcript_bed(args)
             circles_instance = SimulateCoordinates(args)
             circles_instance.run()
         elif args.subcommand == 'reads':
