@@ -2,16 +2,16 @@ import subprocess
 import os
 
 # Define the path for the CircleSim.py script
-CIRCLESIM_PATH = '/data/CircleSim/src/CircleSim.py'
+CIRCLESIM_PATH = 'src/CircleSim.py'
 
 # Define the path for the genome fasta file
-GENOME_FASTA_PATH = '/data/CircleSim/database/genome.fasta'
+GENOME_FASTA_PATH = 'database/genome.fasta'
 
 # Define the path for the transcript BED file
-TRANSCRIPT_BED_PATH = '/data/CircleSim/database/Homo_sapiens.GRCh38.cdna.all.short.bed'
+TRANSCRIPT_BED_PATH = 'database/Homo_sapiens.GRCh38.cdna.all.short.bed'
 
 # Define the base path for output files
-OUTPUT_BASE_PATH = '/data/CircleSim/data/circDNA/short'
+OUTPUT_BASE_PATH = 'data/circDNA/short'
 
 def main():
     coverages = [5, 7, 10, 15, 20, 30, 50, 70, 100]
