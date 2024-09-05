@@ -20,7 +20,7 @@ conda activate circlesim
 pip install -r requirements.txt
 ```
 
-## Examples
+## Using CircleSim
 
 **Simulate Coordinates:**
 
@@ -41,3 +41,11 @@ python CircleSim.py reads -b linear_coordinates.bed -o linear_reads.fastq
 ```bash
 python CircleSim.py  -c circular_reads.fastq -l linear_reads.fastq -o reads.fastq
 ```
+
+## License
+
+CircleSim is freely available under the [MIT license](./LICENSE).
+
+## Acknowledgements
+
+CircleSim is developed by Aitor Zabala, Iñigo Prada-Luengo, Alex Martínez Ascensión and David Otaegui at Biogipuzkoa Health Research Institute.
