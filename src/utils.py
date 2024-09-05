@@ -40,7 +40,7 @@ def parse_join_arguments(parser):
     parser.add_argument("-o", "--output_fastq", type=str, default=os.getcwd(), help="Path to the output FASTQ file for reads")
 
 def set_default_genome_fasta(args):
-    default_genome_fasta = '/data/CircleSim/database/genome.fasta'
+    default_genome_fasta = 'database/genome.fasta'
 
     if os.path.exists(default_genome_fasta):
         args.genome_fasta = default_genome_fasta
@@ -48,3 +48,13 @@ def set_default_genome_fasta(args):
         print("Default genome FASTA file not found locally. Downloading from GitHub...")
         subprocess.run(['wget', default_genome_fasta])
         args.genome_fasta = default_genome_fasta
+
+def set_default_transcript_bed(args):
+    default_transcript_bed = 'database/Homo_sapiens.GRCh38.cdna.all.short.bed'
+    
+    if os.path.exists(default_transcript_bed):
+        args.transcript_bed = default_transcript_bed
+    else:
+        print("Default genome FASTA file not found locally. Downloading from GitHub...")
+        subprocess.run(['wget', default_transcript_bed])
+        args.transcript_bed = default_transcript_bed
