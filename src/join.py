@@ -6,6 +6,7 @@ class Join:
         self.linear_fastq = args.linear_fastq
         self.output_fastq = args.output_fastq
 
+    # Read two input FASTQ files (circular and linear) and combines them into one output FASTQ.
     def join(self):
         try:
             with open(self.circle_fastq, 'r') as f1, open(self.linear_fastq, 'r') as f2:
