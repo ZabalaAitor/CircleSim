@@ -20,6 +20,10 @@ conda activate circlesim
 pip install -r requirements.txt
 ```
 
+## Data Requirements
+
+CircleSim requires a reference genome in FASTA format for simulating circular DNA or RNA sequences. You can download a suitable genome file and place it in a designated folder called database. If a reference genome is not specified in the scripts, CircleSim will automatically look for the genome file in this folder. For circRNA simulations, circles can also be created from transcriptome regions using the ```database/Homo_sapiens.GRCh38.cdna.all.short.bed``` file.
+
 ## Using CircleSim
 
 **Simulate Coordinates:**
