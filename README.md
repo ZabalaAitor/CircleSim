@@ -36,14 +36,15 @@ python CircleSim.py coordinates -t DNA -T linear -n 100 -l 500 -L 1500 -o linear
 **Simulate reads:**
 
 ```bash
-python CircleSim.py reads -b circular_coordinates.bed -o circular_reads.fastq
-python CircleSim.py reads -b linear_coordinates.bed -o linear_reads.fastq
+python CircleSim.py reads -b circular_coordinates.bed -o circular_reads_
+python CircleSim.py reads -b linear_coordinates.bed -o linear_reads_
 ```
 
 **Merge FASTQ Files:**
 
 ```bash
-python CircleSim.py  -c circular_reads.fastq -l linear_reads.fastq -o reads.fastq
+python CircleSim.py  -c circular_reads_R1.fastq -l linear_reads_R1.fastq -o reads_R1.fastq
+python CircleSim.py  -c circular_reads_R2.fastq -l linear_reads_R2.fastq -o reads_R2.fastq
 ```
 ## Parameters
 
