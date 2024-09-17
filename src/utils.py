@@ -18,7 +18,7 @@ def parse_coordinates_arguments(parser):
     
 
 def parse_reads_arguments(parser):
-    parser.add_argument('-t', '--type', type=str, required=True, choices=['DNA', 'RNA', 'linear'], help='Type of circle (DNA or RNA)')
+    parser.add_argument('-t', '--type', type=str, required=True, choices=['DNA', 'RNA'], help='Type of circle (DNA or RNA)')
     parser.add_argument('-T', '--molecule', type=str, choices=['linear', 'circular'], default='circular', help='Type of molecule (linear or circular)')
     parser.add_argument('-s', '--sequence', type=str, default='short', help='Coverage for reads simulation')
     parser.add_argument('-c', '--coverage', type=float, default=30, help='Coverage for reads simulation')
