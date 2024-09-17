@@ -45,6 +45,52 @@ python CircleSim.py reads -b linear_coordinates.bed -o linear_reads.fastq
 ```bash
 python CircleSim.py  -c circular_reads.fastq -l linear_reads.fastq -o reads.fastq
 ```
+## Parameters
+
+### 1. Simulating Coordinates
+
+The following parameters are used to generate genomic coordinates for circular DNA or RNA molecules:
+
+- `-t`, `--type`: Type of molecule to simulate. Options: `DNA`, `RNA`. **Required**
+- `-T`, `--molecule`: Specifies whether the molecule is `linear` or `circular`. Default is `circular`.
+- `-n`, `--number`: Number of circular sequences to simulate. Default is `100`.
+- `-d`, `--distribution`: Distribution of the circle lengths. Options: `uniform`, `lognormal`. Default is `uniform`.
+- `-l`, `--length_min`: Minimum length of the circular DNA/RNA. Default is `300`.
+- `-L`, `--length_max`: Maximum length of the circular DNA/RNA. Default is `10,000`.
+- `-m`, `--mean`: Mean length of the circles when using lognormal distribution. Default is `1,000`.
+- `-sd`, `--sd`: Standard deviation for the lognormal distribution of circle lengths. Default is `1`.
+- `-s`, `--split`: Specifies a sequence (e.g., `AGGT`) to enable splitting of circular sequences at specific points.
+- `-g`, `--genome_fasta`: Path to the reference genome FASTA file.
+- `-r`, `--transcript_bed`: Path to the transcript BED file for circRNA simulations.
+- `-o`, `--output_bed`: Path for saving the output BED file with simulated coordinates. Default is the current directory.
+
+### 2. Simulating Reads
+
+These parameters are used to generate sequencing reads for the simulated circles:
+
+- `-t`, `--type`: Type of circle. Options: `DNA` or `RNA` **Required**
+- `-T`, `--molecule`: Specifies the molecule as either `linear` or `circular`. Default is `circular`.
+- `-s`, `--sequence`: Coverage type for read simulation. Default is `short`.
+- `-c`, `--coverage`: Sequencing coverage. Default is `30x`.
+- `-r`, `--reads_length`: Length of the simulated reads. Default is `150` base pairs.
+- `-i`, `--insert_length`: Insert length for paired-end reads. Default is `500`.
+- `-a`, `--alpha`: Alpha parameter for the beta distribution, which influences mutation rates. Default is `0.5`.
+- `-v`, `--beta`: Beta parameter for the beta distribution. Default is `0.5`.
+- `--mutation`: Enables mutation simulation.
+- `--save_unmutated`: Option to save unmutated reads.
+- `--mutation_rate`: Specifies the mutation rate for the simulated reads. Default is `0.01`.
+- `--error_rate`: Specifies the sequencing error rate. Default is `0.001`.
+- `-g`, `--genome_fasta`: Path to the genome FASTA file.
+- `-b`, `--input_bed`: Path to the input BED file with coordinates for the circular sequences. **Required**
+- `-o`, `--output_fastq`: Path for saving the simulated FASTQ reads. Default is the current directory.
+
+### 3. Merging FASTQ Files
+
+Use these parameters to merge FASTQ files from different simulations:
+
+- `-c`, `--circle_fastq`: Path to the FASTQ file for circular sequences. **Required**
+- `-l`, `--linear_fastq`: Path to the FASTQ file for linear sequences. **Required**
+- `-o`, `--output_fastq`: Path for saving the merged FASTQ file. Default is the current directory.
 
 ## License
 
