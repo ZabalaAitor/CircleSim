@@ -3,7 +3,7 @@ import os
 import subprocess
 
 def parse_coordinates_arguments(parser):
-    parser.add_argument('-t', '--type', type=str, required=True, choices=['DNA', 'RNA'], help='Type of circle (DNA or RNA)')
+    parser.add_argument('-t', '--type', type=str, choices=['DNA', 'RNA'], default='DNA', help='Type of circle (DNA or RNA)')
     parser.add_argument('-T', '--molecule', type=str, choices=['linear', 'circular'], default='circular', help='Type of molecule (linear or circular)')
     parser.add_argument('-n', '--number', type=int, default=100, help='Number of circles to simulate')
     parser.add_argument('-d', '--distribution', type=str, choices=['uniform', 'lognormal'], default='uniform', help='Distribution of circle length (uniform or lognormal) [default = uniform]')
@@ -18,7 +18,7 @@ def parse_coordinates_arguments(parser):
     
 
 def parse_reads_arguments(parser):
-    parser.add_argument('-t', '--type', type=str, required=True, choices=['DNA', 'RNA'], help='Type of circle (DNA or RNA)')
+    parser.add_argument('-t', '--type', type=str, choices=['DNA', 'RNA'], default='DNA', help='Type of circle (DNA or RNA)')
     parser.add_argument('-T', '--molecule', type=str, choices=['linear', 'circular'], default='circular', help='Type of molecule (linear or circular)')
     parser.add_argument('-s', '--sequence', type=str, default='short', help='Coverage for reads simulation')
     parser.add_argument('-c', '--coverage', type=float, default=30, help='Coverage for reads simulation')
