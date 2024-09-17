@@ -51,7 +51,7 @@ python CircleSim.py  -c circular_reads.fastq -l linear_reads.fastq -o reads.fast
 
 The following parameters are used to generate genomic coordinates for circular DNA or RNA molecules:
 
-- `-t`, `--type`: Type of molecule to simulate. Options: `DNA`, `RNA`. **Required**
+- `-t`, `--type`: Type of molecule to simulate. Options: `DNA`, `RNA`. Default is `DNA`.
 - `-T`, `--molecule`: Specifies whether the molecule is `linear` or `circular`. Default is `circular`.
 - `-n`, `--number`: Number of circular sequences to simulate. Default is `100`.
 - `-d`, `--distribution`: Distribution of the circle lengths. Options: `uniform`, `lognormal`. Default is `uniform`.
