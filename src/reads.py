@@ -126,7 +126,13 @@ class SimulateReads:
                 # Generate reads based on molecule type (linear/circular) and distribution.
                 for _ in range(round(reads)):
                     if self.molecule == 'linear':
-                        insert_start = np.random.randint(circle_start, circle_end - self.insert_length)
+                        if self.insert_length > circle_length:
+                            circle_start_linear = circle_start - self.insert_length + 1
+                            circle_end_linear = circle_end + self.insert_length - 1
+                        else:
+                            circle_start_linear = circle_start
+                            circle_end_linear = circle_end
+                        insert_start = np.random.randint(circle_start_linear, circle_end_linear - self.insert_length)
                     else:
                         # Beta distribution can force insert start be near the breakpoin
                         insert_start = int(beta.rvs(alpha_value, beta_value, loc=circle_start, scale=circle_length, size=1))
@@ -137,35 +143,40 @@ class SimulateReads:
                     right_read_end = insert_end
                     right_read_start = insert_end - self.reads_length
                     code = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(10))
-                    if right_read_end >= circle_end: 
-                        right_read_end -= circle_length
-                        right_read_start -= circle_length
-                    if (left_read_end <= circle_end) & (right_read_start >= circle_start):
+                    if self.molecule == 'linear':
                         left_read = fasta.fetch(chromosome, left_read_start, left_read_end)
                         right_read = fasta.fetch(chromosome, right_read_start, right_read_end)
-                        if right_read_start < left_read_start: # DISCORDANT
-                            label = 'DR'
-                        else: # CONCORDANT
-                            name = f'{code}|{chromosome}:{circle_start}-{circle_end}|{left_read_start}-{right_read_end}|CR '
-                            label = 'CR'
-                    elif (left_read_end > circle_end) & (right_read_start < circle_start): # LEFT-RIGHT SPLIT READ
-                        left_read = fasta.fetch(chromosome, left_read_start, circle_end) + fasta.fetch(chromosome, circle_start, circle_start + left_read_end - circle_end)
-                        right_read = fasta.fetch(chromosome, circle_end - (circle_start - right_read_start), circle_end) + fasta.fetch(chromosome, circle_start, right_read_end)
-                        label = 'LRSR'
-                    elif left_read_end > circle_end: # LEFT SPLIT READ
-                        left_read = fasta.fetch(chromosome, left_read_start, circle_end) + fasta.fetch(chromosome, circle_start, circle_start + left_read_end - circle_end)
-                        right_read = fasta.fetch(chromosome, right_read_start, right_read_end)
-                        label = 'LSR'
-                    elif right_read_start < circle_start: # RIGHT SPLIT READ
-                        left_read = fasta.fetch(chromosome, left_read_start, left_read_end)
-                        right_read = fasta.fetch(chromosome, circle_end - (circle_start - right_read_start), circle_end) + fasta.fetch(chromosome, circle_start, right_read_end)
-                        label = 'RSR'
+                        label = 'XR'
                     else:
-                        raise Exception(f"""CIR_START: {circle_start} | CIR_END: {circle_end}
-                                            INS_START: {insert_start} | INS_END: {insert_end}
-                                            CIR_LEN: {circle_end - circle_start} | INS_LEN: {insert_length}
-                                            R1: {left_read_start}-{left_read_end}
-                                            R2: {right_read_start}-{right_read_end}""")
+                        if right_read_end >= circle_end: 
+                            right_read_end -= circle_length
+                            right_read_start -= circle_length
+                        if (left_read_end <= circle_end) & (right_read_start >= circle_start):
+                            left_read = fasta.fetch(chromosome, left_read_start, left_read_end)
+                            right_read = fasta.fetch(chromosome, right_read_start, right_read_end)
+                            if right_read_start < left_read_start: # DISCORDANT
+                                label = 'DR'
+                            else: # CONCORDANT
+                                name = f'{code}|{chromosome}:{circle_start}-{circle_end}|{left_read_start}-{right_read_end}|CR '
+                                label = 'CR'
+                        elif (left_read_end > circle_end) & (right_read_start < circle_start): # LEFT-RIGHT SPLIT READ
+                            left_read = fasta.fetch(chromosome, left_read_start, circle_end) + fasta.fetch(chromosome, circle_start, circle_start + left_read_end - circle_end)
+                            right_read = fasta.fetch(chromosome, circle_end - (circle_start - right_read_start), circle_end) + fasta.fetch(chromosome, circle_start, right_read_end)
+                            label = 'LRSR'
+                        elif left_read_end > circle_end: # LEFT SPLIT READ
+                            left_read = fasta.fetch(chromosome, left_read_start, circle_end) + fasta.fetch(chromosome, circle_start, circle_start + left_read_end - circle_end)
+                            right_read = fasta.fetch(chromosome, right_read_start, right_read_end)
+                            label = 'LSR'
+                        elif right_read_start < circle_start: # RIGHT SPLIT READ
+                            left_read = fasta.fetch(chromosome, left_read_start, left_read_end)
+                            right_read = fasta.fetch(chromosome, circle_end - (circle_start - right_read_start), circle_end) + fasta.fetch(chromosome, circle_start, right_read_end)
+                            label = 'RSR'
+                        else:
+                            raise Exception(f"""CIR_START: {circle_start} | CIR_END: {circle_end}
+                                                INS_START: {insert_start} | INS_END: {insert_end}
+                                                CIR_LEN: {circle_end - circle_start} | INS_LEN: {insert_length}
+                                                R1: {left_read_start}-{left_read_end}
+                                                R2: {right_read_start}-{right_read_end}""")
                     name = f'{code}|{chromosome}:{circle_start}-{circle_end}|{left_read_start}-{right_read_end}|{label} '
                     left_name = name + '1:N:0:CGCTGTG'
                     right_name = name + '2:N:0:CGCTGTG'
